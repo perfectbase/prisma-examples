@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev:nextjs": "turbo run dev --filter nextjs",
+    "dev:sst": "turbo run dev --filter sst",
     "db:generate": "npx -w database prisma generate",
     "db:push": "DATABASE_URL=file:./db.sqlite npx -w database prisma db push",
     "lint": "turbo run lint",
