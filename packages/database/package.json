@@ -5,10 +5,10 @@
   "types": "./src/index.ts",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^4.16.2"
+    "@prisma/client": "^5.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.4.0",
-    "prisma": "^4.16.2"
+    "prisma": "^5.2.0"
   }
 }
