@@ -1,0 +1,4 @@
+db.sqlite
+.client
+.env*
+!.env.example

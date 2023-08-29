@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "db:generate": "npx -w database prisma generate",
+    "db:push": "DATABASE_URL=file:./db.sqlite npx -w database prisma db push",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "@turbo/gen": "^1.9.7",
+    "eslint": "^7.32.0",
+    "eslint-config-custom": "*",
+    "prettier": "^2.5.1",
+    "turbo": "latest"
+  },
+  "name": "turbo-sst-prisma",
+  "packageManager": "npm@9.6.5",
+  "workspaces": [
+    "apps/*",
+    "apps/sst/packages/*",
+    "packages/*"
+  ]
+}
