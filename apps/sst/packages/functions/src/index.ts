@@ -1,11 +1,9 @@
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
-import { PrismaClient } from "database";
-
-const client = new PrismaClient();
+import { prisma } from "database";
 
 export const handler: APIGatewayProxyHandlerV2 = async () => {
   try {
-    const result = await client.post.findMany();
+    const result = await prisma.user.findMany();
     return {
       statusCode: 200,
       body: JSON.stringify(result),

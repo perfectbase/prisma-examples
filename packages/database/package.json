@@ -9,7 +9,7 @@
     "prisma": "prisma",
     "db:push": "npm run with-env prisma db push",
     "db:seed": "npm run with-env tsx ./src/seed.ts",
-    "with-env": "dotenv -e ../../apps/nextjs/.env --"
+    "with-env": "dotenv -e ../../apps/sst/.env --"
   },
   "dependencies": {
     "@prisma/client": "^5.2.0",

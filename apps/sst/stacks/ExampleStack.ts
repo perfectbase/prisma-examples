@@ -38,7 +38,7 @@ export function ExampleStack({ stack, app }: StackContext) {
       function: {
         runtime: "nodejs18.x",
         environment: {
-          DATABASE_URL: "file:./db.sqlite",
+          DATABASE_URL: process.env.DATABASE_URL!,
         },
         nodejs: {
           esbuild: {
