@@ -5,26 +5,32 @@ import { Api, StackContext } from "sst/constructs";
 
 function preparePrismaLayerFiles() {
   const layerPath = "./layers/prisma";
-  fs.rmSync(layerPath, { force: true, recursive: true });
-  fs.mkdirSync(layerPath, { recursive: true });
   const modulesPath = "../../node_modules";
   const files = [".prisma", "@prisma/client", "prisma/build"];
+
+  fs.rmSync(layerPath, { force: true, recursive: true });
+  fs.mkdirSync(layerPath, { recursive: true });
+
   for (const file of files) {
     const from = path.join(modulesPath, file);
     const to = path.join(layerPath, "nodejs/node_modules", file);
     // Do not include binary files that aren't for AWS to save space
     fs.copySync(from, to, {
-      filter: (src) => !src.endsWith("so.node") || src.includes("rhel"),
+      filter: (src) =>
+        !src.startsWith("libquery_engine") || src.includes("rhel"),
     });
   }
 }
 
-export function ExampleStack({ stack }: StackContext) {
-  preparePrismaLayerFiles();
-  const PrismaLayer = new lambda.LayerVersion(stack, "PrismaLayer", {
-    description: "Prisma layer",
-    code: lambda.Code.fromAsset("./layers/prisma"),
-  });
+export function ExampleStack({ stack, app }: StackContext) {
+  let prismaLayer: lambda.LayerVersion | undefined;
+  if (!app.local) {
+    preparePrismaLayerFiles();
+    prismaLayer = new lambda.LayerVersion(stack, "PrismaLayer", {
+      description: "Prisma layer",
+      code: lambda.Code.fromAsset("./layers/prisma"),
+    });
+  }
 
   const api = new Api(stack, "Api", {
     defaults: {
@@ -38,7 +44,7 @@ export function ExampleStack({ stack }: StackContext) {
             external: ["@prisma/client", ".prisma"],
           },
         },
-        layers: [PrismaLayer],
+        layers: prismaLayer ? [prismaLayer] : undefined,
       },
     },
     routes: {
