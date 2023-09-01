@@ -18,6 +18,10 @@
     "prettier": "^2.5.1",
     "turbo": "latest"
   },
+  "dependencies": {
+    "@prisma/client": "^5.2.0",
+    "prisma": "^5.2.0"
+  },
   "name": "turbo-sst-prisma",
   "packageManager": "npm@9.6.5",
   "workspaces": [

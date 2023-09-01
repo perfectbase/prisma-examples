@@ -3,35 +3,28 @@ import fs from "fs-extra";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { Api, StackContext } from "sst/constructs";
 
-export function ExampleStack({ stack, app }: StackContext) {
-  if (!app.local) {
-    // Create a layer for production
-    // This saves shipping Prisma binaries once per function
-    const layerPath = ".sst/layers/prisma";
-
-    // Clear out the layer path
-    fs.rmSync(layerPath, { force: true, recursive: true });
-    fs.mkdirSync(layerPath, { recursive: true });
-
-    // Copy files to the layer
-    const toCopy = [
-      "node_modules/.prisma",
-      "node_modules/@prisma/client",
-      "node_modules/prisma/build",
-    ];
-    for (const file of toCopy) {
-      fs.copySync(file, path.join(layerPath, "nodejs", file), {
-        // Do not include binary files that aren't for AWS to save space
-        filter: (src) => !src.endsWith("so.node") || src.includes("rhel"),
-      });
-    }
-    const prismaLayer = new lambda.LayerVersion(stack, "PrismaLayer", {
-      code: lambda.Code.fromAsset(path.resolve(layerPath)),
+function preparePrismaLayerFiles() {
+  const layerPath = "./layers/prisma";
+  fs.rmSync(layerPath, { force: true, recursive: true });
+  fs.mkdirSync(layerPath, { recursive: true });
+  const modulesPath = "../../node_modules";
+  const files = [".prisma", "@prisma/client", "prisma/build"];
+  for (const file of files) {
+    const from = path.join(modulesPath, file);
+    const to = path.join(layerPath, "nodejs/node_modules", file);
+    // Do not include binary files that aren't for AWS to save space
+    fs.copySync(from, to, {
+      filter: (src) => !src.endsWith("so.node") || src.includes("rhel"),
     });
-
-    // Add to all functions in this stack
-    stack.addDefaultFunctionLayers([prismaLayer]);
   }
+}
+
+export function ExampleStack({ stack }: StackContext) {
+  preparePrismaLayerFiles();
+  const PrismaLayer = new lambda.LayerVersion(stack, "PrismaLayer", {
+    description: "Prisma layer",
+    code: lambda.Code.fromAsset("./layers/prisma"),
+  });
 
   const api = new Api(stack, "Api", {
     defaults: {
@@ -42,10 +35,10 @@ export function ExampleStack({ stack, app }: StackContext) {
         },
         nodejs: {
           esbuild: {
-            // Only reference external modules when deployed
-            external: app.local ? [] : ["@prisma/client", ".prisma"],
+            external: ["@prisma/client", ".prisma"],
           },
         },
+        layers: [PrismaLayer],
       },
     },
     routes: {
