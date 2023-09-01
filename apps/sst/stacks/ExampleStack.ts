@@ -16,16 +16,15 @@ function preparePrismaLayerFiles() {
     const to = path.join(layerPath, "nodejs/node_modules", file);
     // Do not include binary files that aren't for AWS to save space
     fs.copySync(from, to, {
-      filter: (src) =>
-        !src.startsWith("libquery_engine") || src.includes("rhel"),
+      filter: (src) => !src.includes("libquery_engine") || src.includes("rhel"),
     });
   }
 }
 
 export function ExampleStack({ stack, app }: StackContext) {
   let prismaLayer: lambda.LayerVersion | undefined;
+  preparePrismaLayerFiles();
   if (!app.local) {
-    preparePrismaLayerFiles();
     prismaLayer = new lambda.LayerVersion(stack, "PrismaLayer", {
       description: "Prisma layer",
       code: lambda.Code.fromAsset("./layers/prisma"),
